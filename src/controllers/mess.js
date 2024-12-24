@@ -1,7 +1,8 @@
 const express = require("express");
 const messRouter = express.Router();
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu } = require("../modules/mess");
+const mess_timing = require("../../static/mess_timing.json")
 
 messRouter.post("/menu/edit",async (req,res)=>{
     const user = req.user;	
@@ -49,5 +50,41 @@ messRouter.post("/menu/edit",async (req,res)=>{
         })
     }
 })
-
+messRouter.get("/menu/current",async (req,res)=>{
+    const date = new Date();
+    const conv = {0:7,1:1,2:2,3:3,4:4,5:5,6:6};
+    let day = conv[date.getDay()];
+    const time = date.getHours()+(date.getMinutes()/60);
+    let slot = null
+    for (let i of Object.keys(mess_timing)){
+        if (time<mess_timing[i]){
+            slot = parseInt(i)
+        }
+    }
+    if (!slot){
+        if (day==7){day=1}
+        else{day++}
+        slot = 1
+    }
+    const currentMenuResponse = await currentMenu({meal_slot:slot,meal_day:day});
+    if (currentMenuResponse){
+        res.send({
+            status:200,
+            error:false,
+            message:"Menu fetched successfully!!",
+            data:{
+             menu_day:day,
+             menu_slot:slot,
+             menu:currentMenuResponse
+            }
+        })
+    }else{
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.UNEXPECTED_ERROR,
+            data:{}
+        })
+    }       
+})
 module.exports= messRouter

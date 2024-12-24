@@ -37,4 +37,16 @@ const removeMeals = ({meals}) =>{
         })
     })
 }
-module.exports = {checkMenuIds,addMeals,removeMeals}
+const currentMenu = ({meal_slot,meal_day}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select meal_item,meal_type,menu_id from menu where is_deleted=0 and meal_slot=? and meal_day=?;`;
+        db.query(q,[meal_slot,meal_day],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,addMeals,removeMeals,currentMenu}
