@@ -1,0 +1,8 @@
+{
+    "name":"string",
+    "email":"string",
+    "password":"string",
+    "meal_item":"string",
+    "additions":"custom",
+    "removes":"custom"
+}

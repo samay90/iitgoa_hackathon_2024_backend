@@ -4,5 +4,8 @@
     "INVALID_CREDENTIALS":"Invalid user credentials!!",
     "INVALID_EMAIL":"Invalid email!!",
     "UNAUTHORIZED":"Unauthorized access!!",
-    "TOKEN_EXPIRED":"Token expired please login again!!"
+    "TOKEN_EXPIRED":"Token expired please login again!!",
+    "NOT_ALLOWED":"You are not authorized to perform this action!!",
+    "NO_INPUTS":"No inputs entered!!",
+    "INVALID_MENU_ID":"Invalid menu_id entered!!" 
 }
