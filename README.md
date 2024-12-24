@@ -25,7 +25,7 @@
                 - Removes should strictly follow the following data structure
                         [number,...]
         Response : Basic
-### b) Get Current Pizza (/menu/current) (GET)
+### b) Get Current Menu (/menu/current) (GET)
         Headers : token
         Response Logic : It gives the menu of the next comming meal based on current time
         Response : {"menu_day":number,"menu_slot":number,"menu":[{"meal_item":string,"meal_type":number,"meal_id":number},...]}
