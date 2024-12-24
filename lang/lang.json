@@ -1,0 +1,8 @@
+{
+    "DUPLICATE_EMAIL":"User already exists with same email_id!!",
+    "UNEXPECTED_ERROR":"Some unexpected error occurred!!",
+    "INVALID_CREDENTIALS":"Invalid user credentials!!",
+    "INVALID_EMAIL":"Invalid email!!",
+    "UNAUTHORIZED":"Unauthorized access!!",
+    "TOKEN_EXPIRED":"Token expired please login again!!"
+}
