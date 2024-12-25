@@ -64,12 +64,24 @@ const checkMealIds = ({ids,meal_slot,meal_day}) =>{
 }
 const deletePreviousFeedback = ({user_id,meal_slot,meal_date}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `update feedbacks set is_deleted=1 where user_id=? and meal_slot=? and meal_date=?;`;
-        db.query(q,[user_id,meal_slot,meal_date],(err,result)=>{
+        const q = `update feedbacks set is_deleted=1,updated_at=? where user_id=? and meal_slot=? and meal_date=?;`;
+        db.query(q,[getTime(),user_id,meal_slot,meal_date],(err,result)=>{
             if (err){
                 reject(err)
             }else{
                 resolve(result)
+            }
+        })
+    })
+}
+const countFeedbacks = ({user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from feedbacks where user_id=? and is_deleted=0;`;
+        db.query(q,[user_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
             }
         })
     })
@@ -87,4 +99,40 @@ const addFeedback = ({meal_slot,meal_date,feedback,user_id}) =>{
         })
     })
 }
-module.exports = {checkMenuIds,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const checkItemId = ({id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as items from menu where menu_id=? and is_deleted=0;`;
+        db.query(q,[id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const addSuggestion = ({changes_old_item,changes_new_item,user_id,reason}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `insert into suggestions (changes_old_item,changes_new_item,user_id,reason,created_at) values (?,?,?,?,?);`;
+        db.query(q,[changes_old_item,changes_new_item,user_id,reason,getTime()],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const countSuggestions = ({user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from suggestions where user_id=?;`;
+        db.query(q,[user_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,addSuggestion,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}

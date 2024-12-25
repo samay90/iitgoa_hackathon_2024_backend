@@ -60,7 +60,7 @@ const typeChecker = (req,res,next) =>{
                         })
                     }
                 }else if (i=="meal_slot"){
-                    if ((body[i]<=1 || body[i]>=4) || typeof(body[i])!=="number"){
+                    if ((body[i]<1 || body[i]>4) || typeof(body[i])!=="number"){
                         isError = true
                         res.status(400).json({
                             status:400,

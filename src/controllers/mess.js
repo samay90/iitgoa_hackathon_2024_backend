@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -141,10 +141,11 @@ messRouter.post("/feedback",async (req,res)=>{
                             data:{}
                         })
                     }else{
+                        const countFeedbacksResponse = await countFeedbacks({user_id:user.user_id});
                         res.send({
                             status:200,
                             error:false,
-                            message:"Thanks for the feedback!!",
+                            message:"You contributed "+countFeedbacksResponse.count+" times in feedback's. Thanks for the feedback!!",
                             data:{}
                         })
                     }
@@ -152,5 +153,47 @@ messRouter.post("/feedback",async (req,res)=>{
             }
         }
     }
+})
+messRouter.post("/suggestion",async (req,res)=>{
+    const body = req.body;
+    const user = req.user;
+    if (!body.changes_new_item){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.NO_INPUTS,
+            data:{}
+        })
+    }else{
+        if (body.changes_old_item){
+            if (checkItemId(body.changes_old_item).items==0){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_MENU_ID,
+                    data:{}
+                })
+                return 0
+            }
+        }
+        const addSuggestionResponse = await addSuggestion({changes_new_item:body.changes_new_item,user_id:user.user_id,reason:body.reason,changes_old_item:body.changes_old_item});
+        if (addSuggestionResponse){
+            const countSuggestionsResponse = await countSuggestions({user_id:user.user_id})
+            res.send({
+                status:200,
+                error:false,
+                message:"You contributed "+countSuggestionsResponse.count+" times in suggestions. Thanks for the suggestion!!",
+                data:{}
+            })
+        }else{
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.UNEXPECTED_ERROR,
+                data:{}
+            })
+        }
+    }
+
 })
 module.exports= messRouter

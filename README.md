@@ -40,3 +40,12 @@ All the inputs should satisfy the type and length conditions (by default).
                 - menu_id's should match with meal's in that particular meal_slot
                 - the previously submitted feedback will be deleted by default (For Edit)
                 - Editing of the feedback is only allowed on the day of the meal  
+        Response : Response with total feedback's count
+### d) Add Suggestion (/suggestion) (POST)
+        Headers : token
+        Body : changes_old_item,changes_new_item (Required),reason
+        Conditions : 
+                - changes_old_item should be menu_id.
+                - if changes_old_item is empty that changes_new_item will be considered as addition of item.
+                - changes_new_item should the name of the item.
+        Response : Response with total suggestion's count
