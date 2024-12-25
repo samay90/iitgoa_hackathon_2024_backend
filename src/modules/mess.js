@@ -137,8 +137,8 @@ const countSuggestions = ({user_id}) =>{
 }
 const markAttendance = ({user_id,meal_slot,meal_date,is_attending}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `insert into attendance (user_id,meal_slot,meal_date,is_attending,created_at) values (?,?,?,?,?);`;
-        db.query(q,[user_id,meal_slot,meal_date,is_attending,getTime()],(err,result)=>{
+        const q = `insert into attendance (user_id,meal_slot,meal_date,is_attending,created_at,updated_at) values (?,?,?,?,?,?);`;
+        db.query(q,[user_id,meal_slot,meal_date,is_attending,getTime(),getTime()],(err,result)=>{
             if (err){
                 reject(err)
             }else{
@@ -155,6 +155,19 @@ const checkAttendance = ({user_id,meal_slot,meal_date}) =>{
                 reject(err)
             }else{
                 resolve(result[0])
+            }
+        })
+    })
+}
+const editAttendance = ({user_id,meal_slot,meal_date,is_attending}) =>{
+    return new Promise((resolve,reject)=>{
+
+        const q = `update attendance set is_attending=?,updated_at=? where user_id=? and meal_slot=? and meal_date=?;`;
+        db.query(q,[is_attending,getTime(),user_id,meal_slot,meal_date],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
             }
         })
     })
@@ -227,4 +240,4 @@ const fullMenu = ()=>{
         }
     })
 }
-module.exports = {checkMenuIds,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+module.exports = {checkMenuIds,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}

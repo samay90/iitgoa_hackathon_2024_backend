@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -214,12 +214,18 @@ messRouter.post("/attend",async (req,res)=>{
     const meal_date = getDate(crr_date);
     const checkAttendanceResponse = await checkAttendance({user_id:user.user_id,meal_slot:slot,meal_date:getDate(crr_date)});
     if (checkAttendanceResponse.count>0){
-        res.status(400).send({
-            status:400,
-            error:true,
-            message:lang.ALREADY_MARKED,
-            data:{}
-        })
+        const editAttendanceResponse = await editAttendance({user_id:user.user_id,meal_slot:slot,meal_date:meal_date,is_attending:body.is_attending});
+        if (editAttendanceResponse){
+            res.send({
+                status:200,
+                error:false,
+                message:body.is_attending==1?"Attendance marked. Enjoy your meal!!":"Attendance marked successfully!!",
+                data:{
+                    meal_date:meal_date,
+                    meal_slot:slot
+                }
+            })
+        }
     }else{
         const markAttendanceResponse = await markAttendance({user_id:user.user_id,meal_slot:slot,meal_date:meal_date,is_attending:body.is_attending});
         if (markAttendanceResponse){

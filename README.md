@@ -50,13 +50,13 @@ All the inputs should satisfy the type and length conditions (by default).
                 - if changes_old_item is empty that changes_new_item will be considered as addition of item.
                 - changes_new_item should the name of the item.
         Response : Response with total suggestion's count
-### e) Mark Attendance (/attend) (POST)
+### e) Mark Attendance or Edit (/attend) (POST)
         Headers : token
         Body : is_attending [0-1]
         Conditions :
                 - attendance will be taken for the next coming meal slot.
                 - It will be taken till the meal time is over and after that attendance for the next meal will start.
-                - You can only mark your attendance once.
+                - If a attendance already exist than it will be updated
         Response : meal_date,meal_slot
 ### f) Announce (/announcement/new) (POST)
         Headers : token
