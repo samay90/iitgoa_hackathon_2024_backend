@@ -15,6 +15,7 @@
     "announcement_title":"string",
     "announcement_message":"string",
     "announcement_id":"number",
+    "user_role":"custom",
     "wastage":"number",
     "✅ just a comment":"If you change the data type of custom fields, please change it in type_checker also!!"
 }

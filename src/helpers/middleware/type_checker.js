@@ -79,6 +79,16 @@ const typeChecker = (req,res,next) =>{
                             data:{}
                         })
                     }
+                }else if(i=="user_role"){
+                    if (![1,2].includes(body[i])){
+                        isError = true
+                        res.status(400).json({
+                            status:400,
+                            error:true,
+                            message:"Type of role must be 1 (normal) or 2 (admin)",
+                            data:{}
+                        })
+                    }
                 }
             }
         }

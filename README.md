@@ -14,6 +14,14 @@ All the inputs should satisfy the type and length conditions (by default).
         Conditions : Token should be valid and not expired
         Response : user details (user_id,email,is_admin,is_super_admin,created_at,updated_at)
         Response : Basic
+### b) Change user role (/:user_id/role/change) (POST)
+        Headers : token
+        Params : user_id
+        Body : user_role [1->Normal,2->Admin]
+        Conditions : 
+                - User should be super_admin.
+                - User to update should not be super admin.
+        Response : Basic
 ## 3) Mess (/mess)
 ### a) Edit Mess Menu (/menu/edit) (POST)
         Headers : token
