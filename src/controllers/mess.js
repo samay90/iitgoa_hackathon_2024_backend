@@ -91,7 +91,7 @@ messRouter.get("/menu/current",async (req,res)=>{
 messRouter.post("/feedback",async (req,res)=>{
     const body = req.body;
     const user = req.user;
-    const checkerResponse = checker(body,["feedback","meal_slot","meal_date"]);
+    const checkerResponse = checker(body,["feedback","meal_slot"]);
     if (checkerResponse){
         res.status(400).send({
             status:400,
@@ -100,61 +100,53 @@ messRouter.post("/feedback",async (req,res)=>{
             data:{}
         })
     }else{
-        if (getDate(new Date(body.meal_date))!==getDate()){
+        const crr_date = new Date()
+        const meal_date = getDate(crr_date)
+        const crr_time = crr_date.getHours()+(crr_date.getMinutes()/60);
+        if (crr_time<mess_timing[body.meal_slot]){
             res.status(400).send({
                 status:400,
                 error:true,
-                message:lang.LATE_ENTRY,
+                message:lang.ONLY_AFTER_MEAL,
                 data:{}
             })
         }else{
-            const crr_date = new Date()
-            const crr_time = crr_date.getHours()+(crr_date.getMinutes()/60);
-            if (crr_time<mess_timing[body.meal_slot]){
-                res.status(400).send({
-                    status:400,
-                    error:true,
-                    message:lang.ONLY_AFTER_MEAL,
-                    data:{}
-                })
-            }else{
-                const conv = {0:7,1:1,2:2,3:3,4:4,5:5,6:6};
-                let day = conv[crr_date.getDay()];
-                let meal_ids = [];
-                body.feedback.forEach(element => {
-                    meal_ids.push(element.menu_id)
-                });
-                if (meal_ids.length>0){
-                    const checkMealIdsResponse = await checkMealIds({ids:meal_ids,meal_slot:body.meal_slot,meal_day:day});
-                    if (checkMealIdsResponse.items!=meal_ids.length){
+            const conv = {0:7,1:1,2:2,3:3,4:4,5:5,6:6};
+            let day = conv[crr_date.getDay()];
+            let meal_ids = [];
+            body.feedback.forEach(element => {
+                meal_ids.push(element.menu_id)
+            });
+            if (meal_ids.length>0){
+                const checkMealIdsResponse = await checkMealIds({ids:meal_ids,meal_slot:body.meal_slot,meal_day:day});
+                if (checkMealIdsResponse.items!=meal_ids.length){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_MENU_ID,
+                        data:{}
+                    })
+                }else{
+                    let isError = false
+                    const deletePreviousFeedbackResponse = await deletePreviousFeedback({user_id:user.user_id,meal_slot:body.meal_slot,meal_date:meal_date});
+                    if (deletePreviousFeedbackResponse){
+                        const addFeedbackResponse = await addFeedback({meal_slot:body.meal_slot,meal_date:meal_date,feedback:body.feedback,user_id:user.user_id});
+                        if (!addFeedbackResponse){isError = true}
+                    }else{isError = true}
+                    if (isError){
                         res.status(400).send({
                             status:400,
                             error:true,
-                            message:lang.INVALID_MENU_ID,
+                            message:lang.UNEXPECTED_ERROR,
                             data:{}
                         })
                     }else{
-                        let isError = false
-                        const deletePreviousFeedbackResponse = await deletePreviousFeedback({user_id:user.user_id,meal_slot:body.meal_slot,meal_date:body.meal_date});
-                        if (deletePreviousFeedbackResponse){
-                            const addFeedbackResponse = await addFeedback({meal_slot:body.meal_slot,meal_date:body.meal_date,feedback:body.feedback,user_id:user.user_id});
-                            if (!addFeedbackResponse){isError = true}
-                        }else{isError = true}
-                        if (isError){
-                            res.status(400).send({
-                                status:400,
-                                error:true,
-                                message:lang.UNEXPECTED_ERROR,
-                                data:{}
-                            })
-                        }else{
-                            res.send({
-                                status:200,
-                                error:false,
-                                message:"Thanks for the feedback!!",
-                                data:{}
-                            })
-                        }
+                        res.send({
+                            status:200,
+                            error:false,
+                            message:"Thanks for the feedback!!",
+                            data:{}
+                        })
                     }
                 }
             }

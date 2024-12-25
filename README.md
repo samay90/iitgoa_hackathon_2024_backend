@@ -31,12 +31,12 @@ All the inputs should satisfy the type and length conditions (by default).
         Response : {menu_day:number,menu_slot:number,menu:[{meal_item:string,meal_type:number,meal_id:number},...]}
 ### c) Add or Edit Feedback (/feedback) (POST)
         Headers : token
-        Body : feedback,meal_slot,meal_date
+        Body : feedback,meal_slot
         Conditions :
                 - Feedback should strictly follow the following data structure 
                         [{menu_id:number,rating:number[1-5],qna:[{question:string,answer:string},...]},...]
-                - meal_date should be in the valid Javascript format 
-                - Current date should match with the meal_date
+                - Current date will be considered as meal_date by default 
                 - meal should have been completed (current_time>timing's of the meal_slot)
                 - menu_id's should match with meal's in that particular meal_slot
-                - the previously submitted will be deleted by default (For Edit)  
+                - the previously submitted feedback will be deleted by default (For Edit)
+                - Editing of the feedback is only allowed on the day of the meal  
