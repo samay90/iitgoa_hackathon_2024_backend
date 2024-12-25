@@ -1,9 +1,10 @@
 const express = require("express");
 const messRouter = express.Router();
+const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback } = require("../modules/mess");
+const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
-
 messRouter.post("/menu/edit",async (req,res)=>{
     const user = req.user;	
     if (user.is_admin==1 || user.is_super_admin==1){
@@ -86,5 +87,78 @@ messRouter.get("/menu/current",async (req,res)=>{
             data:{}
         })
     }       
+})
+messRouter.post("/feedback",async (req,res)=>{
+    const body = req.body;
+    const user = req.user;
+    const checkerResponse = checker(body,["feedback","meal_slot","meal_date"]);
+    if (checkerResponse){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:checkerResponse,
+            data:{}
+        })
+    }else{
+        if (getDate(new Date(body.meal_date))!==getDate()){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.LATE_ENTRY,
+                data:{}
+            })
+        }else{
+            const crr_date = new Date()
+            const crr_time = crr_date.getHours()+(crr_date.getMinutes()/60);
+            if (crr_time<mess_timing[body.meal_slot]){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.ONLY_AFTER_MEAL,
+                    data:{}
+                })
+            }else{
+                const conv = {0:7,1:1,2:2,3:3,4:4,5:5,6:6};
+                let day = conv[crr_date.getDay()];
+                let meal_ids = [];
+                body.feedback.forEach(element => {
+                    meal_ids.push(element.menu_id)
+                });
+                if (meal_ids.length>0){
+                    const checkMealIdsResponse = await checkMealIds({ids:meal_ids,meal_slot:body.meal_slot,meal_day:day});
+                    if (checkMealIdsResponse.items!=meal_ids.length){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.INVALID_MENU_ID,
+                            data:{}
+                        })
+                    }else{
+                        let isError = false
+                        const deletePreviousFeedbackResponse = await deletePreviousFeedback({user_id:user.user_id,meal_slot:body.meal_slot,meal_date:body.meal_date});
+                        if (deletePreviousFeedbackResponse){
+                            const addFeedbackResponse = await addFeedback({meal_slot:body.meal_slot,meal_date:body.meal_date,feedback:body.feedback,user_id:user.user_id});
+                            if (!addFeedbackResponse){isError = true}
+                        }else{isError = true}
+                        if (isError){
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.UNEXPECTED_ERROR,
+                                data:{}
+                            })
+                        }else{
+                            res.send({
+                                status:200,
+                                error:false,
+                                message:"Thanks for the feedback!!",
+                                data:{}
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
 })
 module.exports= messRouter

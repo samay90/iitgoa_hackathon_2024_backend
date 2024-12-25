@@ -4,5 +4,9 @@
     "password":"string",
     "meal_item":"string",
     "additions":"custom",
-    "removes":"custom"
+    "removes":"custom",
+    "feedback":"custom",
+    "meal_slot":"custom",
+    "meal_date":"custom",
+    "✅ just a comment":"If you change the data type of custom fields, please change it in type_checker also!!"
 }

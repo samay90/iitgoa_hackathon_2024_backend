@@ -1,6 +1,7 @@
 const type = require("../../../static/type.json")
 const additons = require("../functions/types/additions")
 const removes = require("../functions/types/removes")
+const feedback = require("../functions/types/feedback")
 const typeChecker = (req,res,next) =>{
     const body = req.body;
     var isError = false
@@ -34,6 +35,37 @@ const typeChecker = (req,res,next) =>{
                             status:400,
                             error:true,
                             message:"Type of removes must be an array of numbers",
+                            data:{}
+                        })
+                    }
+                }else if (i=="feedback"){
+                    if (!feedback({data:body[i]})){
+                        isError = true
+                        res.status(400).json({
+                            status:400,
+                            error:true,
+                            message:"Type of feedback must be an array of objects with the following structure : {menu_id:number,rating:number[1-5],qna:[{question:string,answer:string}]}",
+                            data:{}
+                        })
+                    }
+                }else if (i=="meal_date"){
+                    const temp = new Date(body[i]);
+                    if (temp=="Invalid Date"){
+                        isError = true
+                        res.status(400).json({
+                            status:400,
+                            error:true,
+                            message:"Type of meal_date must be a valid date",
+                            data:{}
+                        })
+                    }
+                }else if (i=="meal_slot"){
+                    if ((body[i]<=1 || body[i]>=4) || typeof(body[i])!=="number"){
+                        isError = true
+                        res.status(400).json({
+                            status:400,
+                            error:true,
+                            message:"Type of meal_slot must be a number between 1 and 4",
                             data:{}
                         })
                     }
