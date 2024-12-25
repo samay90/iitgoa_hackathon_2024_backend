@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -377,6 +377,77 @@ messRouter.get("/menu/full",async (req,res)=>{
             status:400,
             error:true,
             message:lang.UNEXPECTED_ERROR,
+            data:{}
+        })
+    }
+})
+messRouter.post("/wastage/add",async (req,res)=>{
+    const body = req.body;
+    const user = req.user;
+    if (user.is_admin==1 || user.is_super_admin==1){
+        const checkerResponse = checker(body,["wastage","meal_date","meal_slot"])
+        if (checkerResponse){    
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:checkerResponse,
+                data:{}
+            })
+        }else{
+            const crr_date = new Date();
+            const meal_date = new Date(body.meal_date)
+            meal_date.setMinutes(mess_timing[body.meal_slot]*60)
+            if (crr_date.getTime()<meal_date.getTime()){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.ONLY_AFTER_MEAL,
+                    data:{}
+                })
+            }else{
+                const isWastageExistResponse = await isWastageExist({wastage:body.wastage,meal_date:body.meal_date,meal_slot:body.meal_slot});
+                if (isWastageExistResponse.count>0){
+                    const updateWastageResponse = await updateWastage({wastage:body.wastage,meal_date:body.meal_date,meal_slot:body.meal_slot});
+                    if (!updateWastageResponse){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.UNEXPECTED_ERROR,
+                            data:{}
+                        })
+                    }else{
+                        res.send({
+                            status:200,
+                            error:false,
+                            message:"Wastage updated successfully!!",
+                            data:{}
+                        })
+                    }
+                }else{
+                    const addWastageResponse = await addWastage({wastage:body.wastage,meal_date:body.meal_date,meal_slot:body.meal_slot});
+                    if (!addWastageResponse){
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.UNEXPECTED_ERROR,
+                            data:{}
+                        })
+                    }else{
+                        res.send({
+                            status:200,
+                            error:false,
+                            message:"Wastage added successfully!!",
+                            data:{}
+                        })
+                    }
+                }
+            }
+        }
+    }else{
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.NOT_ALLOWED,
             data:{}
         })
     }

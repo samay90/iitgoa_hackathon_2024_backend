@@ -240,4 +240,42 @@ const fullMenu = ()=>{
         }
     })
 }
-module.exports = {checkMenuIds,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const isWastageExist = ({meal_date,meal_slot}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from wastages where meal_date=? and meal_slot=?;`;
+        db.query(q,[meal_date,meal_slot],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const updateWastage = ({meal_date,meal_slot,wastage}) =>{
+    const currentTime = getTime();
+    return new Promise((resolve,reject)=>{
+        const q = `update wastages set wastage=?,updated_at=? where meal_date=? and meal_slot=?;`;
+        db.query(q,[wastage,currentTime,meal_date,meal_slot],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const addWastage = ({meal_date,meal_slot,wastage}) =>{
+    const currentTime = getTime();
+    return new Promise((resolve,reject)=>{
+        const q = `insert into wastages (meal_date,meal_slot,wastage,created_at,updated_at) values (?,?,?,?,?);`;
+        db.query(q,[meal_date,meal_slot,wastage,currentTime,currentTime],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,addWastage,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
