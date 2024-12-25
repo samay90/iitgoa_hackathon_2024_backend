@@ -4,5 +4,7 @@
     "password":200,
     "token":"1d",
     "reason":200,
-    "changes_new_item":50
+    "changes_new_item":50,
+    "announcement_title":50,
+    "announcement_message":200
 }

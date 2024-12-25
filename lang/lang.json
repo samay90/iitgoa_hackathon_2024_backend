@@ -10,5 +10,6 @@
     "INVALID_MENU_ID":"Invalid menu_id entered!!",
     "LATE_ENTRY":"Sorry you can only submit on the day of the meal!!",
     "ONLY_AFTER_MEAL":"You can only submit after the meal!!",
-    "ALREADY_MARKED":"You have already marked the meal!!"
+    "ALREADY_MARKED":"You have already marked the meal!!",
+    "INVALID_ANNOUNCEMENT_ID":"Invalid announcement_id entered. No such announcement exists!!"
 }

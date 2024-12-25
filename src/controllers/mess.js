@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -235,5 +235,126 @@ messRouter.post("/attend",async (req,res)=>{
         }
     }
 
+})
+messRouter.post("/announcement/new",async (req,res)=>{
+    const body = req.body;
+    const user = req.user;
+    if (user.is_admin==1 || user.is_super_admin==1){
+        const checkerResponse = checker(body,["announcement_title","announcement_message"]);
+        if (checkerResponse){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:checkerResponse,
+                data:{}
+            })
+        }else{
+            const addAnnouncementResponse = await addAnnouncement({announcement_title:body.announcement_title,user_id:user.user_id,announcement_message:body.announcement_message});
+            if (addAnnouncementResponse){
+                res.send({
+                    status:200,
+                    error:false,
+                    message:"Announcement added successfully!!",
+                    data:{}
+                })
+            }else{
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.UNEXPECTED_ERROR,
+                    data:{}
+                })
+            }
+        }
+    }else{
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.NOT_ALLOWED,
+            data:{}
+        })
+    }
+})
+messRouter.post('/announcement/edit',async (req,res)=>{
+    const body = req.body;
+    const user = req.user;
+    if (user.is_admin==1 || user.is_super_admin==1){
+        if (!body.announcement_id || (!body.announcement_title && !body.announcement_message)){
+            res.send({
+                status:400,
+                error:true,
+                message:lang.NO_INPUTS,
+                data:{}
+            })
+        }else{
+            const checkAnnouncmentIdResponse = await checkAnnouncmentId({id:body.announcement_id,user_id:user.user_id});
+            if (checkAnnouncmentIdResponse.count==0){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_ANNOUNCEMENT_ID,
+                    data:{}
+                })
+            }else{
+                const editAnnouncementResponse = await editAnnouncement({id:body.announcement_id,announcement_title:body.announcement_title,announcement_message:body.announcement_message});
+                if (editAnnouncementResponse){
+                    res.send({
+                        status:200,
+                        error:false,
+                        message:"Announcement edited successfully!!",
+                        data:{}
+                    })
+                }else{
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.UNEXPECTED_ERROR,
+                        data:{}
+                    })
+                }
+            }
+        }
+    }
+})
+messRouter.post('/announcement/delete',async (req,res)=>{
+    const body = req.body;
+    const user = req.user;
+    if (user.is_admin==1 || user.is_super_admin==1){
+        if (!body.announcement_id){
+            res.send({
+                status:400,
+                error:true,
+                message:lang.NO_INPUTS,
+                data:{}
+            })
+        }else{
+            const checkAnnouncmentIdResponse = await checkAnnouncmentId({id:body.announcement_id,user_id:user.user_id});
+            if (checkAnnouncmentIdResponse.count==0){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_ANNOUNCEMENT_ID,
+                    data:{}
+                })
+            }else{
+                const deleteAnnouncementResponse = await deleteAnnouncement({id:body.announcement_id});
+                if (deleteAnnouncementResponse){
+                    res.send({
+                        status:200,
+                        error:false,
+                        message:"Announcement deleted successfully!!",
+                        data:{}
+                    })
+                }else{
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.UNEXPECTED_ERROR,
+                        data:{}
+                    })
+                }
+            }
+        }
+    }
 })
 module.exports= messRouter

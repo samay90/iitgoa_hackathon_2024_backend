@@ -13,6 +13,7 @@ All the inputs should satisfy the type and length conditions (by default).
         Headers : token
         Conditions : Token should be valid and not expired
         Response : user details (user_id,email,is_admin,is_super_admin,created_at,updated_at)
+        Response : Basic
 ## 3) Mess (/mess)
 ### a) Edit Mess Menu (/menu/edit) (POST)
         Headers : token
@@ -57,3 +58,25 @@ All the inputs should satisfy the type and length conditions (by default).
                 - It will be taken till the meal time is over and after that attendance for the next meal will start.
                 - You can only mark your attendance once.
         Response : meal_date,meal_slot
+### f) Announce (/announcement/new) (POST)
+        Headers : token
+        Body : announcemnt_title,announcemnt_message
+        Conditions : 
+                - user should be admin or super_admin
+                - Both the fields are required
+        Response : Basic
+### g) Edit Announcemnt (/announcement/edit) (POST)
+        Headers : token
+        Body : announcement_title,announcement_message,announcement_id
+        Conditions : 
+                - user should be admin or super_admin
+                - Anyone of the announcement_title or announcement_announcement is required
+                - announcemnt should belong to the particular user
+        Response: Basic
+### h) Delete Announcement (/announcement/delete) (POST)
+        Headers : token
+        Body : announcement_id
+        Conditions :
+                - user should be admin or super_admin
+                - announcemnt should belong to the particular user
+        Response : Basic

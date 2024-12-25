@@ -159,4 +159,54 @@ const checkAttendance = ({user_id,meal_slot,meal_date}) =>{
         })
     })
 }
-module.exports = {checkMenuIds,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const addAnnouncement = ({announcement_title,user_id,announcement_message}) =>{
+    const currentTime = getTime();
+    return new Promise((resolve,reject)=>{
+        const q = `insert into announcements (announcement_title,announcement_message,created_at,user_id,updated_at,is_deleted) values (?,?,?,?,?,?);`;
+        db.query(q,[announcement_title,announcement_message,currentTime,user_id,currentTime,0],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const checkAnnouncmentId = ({id,user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from announcements where announcement_id=? and is_deleted=0 and user_id=?;`;
+        db.query(q,[id,user_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const editAnnouncement = ({announcement_title,announcement_message,announcement_id}) =>{
+    const currentTime = getTime();
+    return new Promise((resolve,reject)=>{
+        const q = `update announcements set announcement_title=?,announcement_message=?,updated_at=? where announcement_id=?;`;
+        db.query(q,[announcement_title,announcement_message,currentTime,announcement_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const deleteAnnouncement = ({announcement_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `update announcements set is_deleted=1,updated_at=? where announcement_id=?;`;
+        db.query(q,[announcement_id,getTime()],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
