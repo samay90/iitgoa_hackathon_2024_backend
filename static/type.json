@@ -11,5 +11,6 @@
     "reason":"string",
     "changes_old_item":"number",
     "changes_new_item":"string",
+    "is_attending":"custom",
     "✅ just a comment":"If you change the data type of custom fields, please change it in type_checker also!!"
 }

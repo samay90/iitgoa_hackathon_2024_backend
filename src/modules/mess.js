@@ -135,4 +135,28 @@ const countSuggestions = ({user_id}) =>{
         })
     })
 }
-module.exports = {checkMenuIds,addSuggestion,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const markAttendance = ({user_id,meal_slot,meal_date,is_attending}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `insert into attendance (user_id,meal_slot,meal_date,is_attending,created_at) values (?,?,?,?,?);`;
+        db.query(q,[user_id,meal_slot,meal_date,is_attending,getTime()],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const checkAttendance = ({user_id,meal_slot,meal_date}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from attendance where user_id=? and meal_slot=? and meal_date=?;`;
+        db.query(q,[user_id,meal_slot,meal_date],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}

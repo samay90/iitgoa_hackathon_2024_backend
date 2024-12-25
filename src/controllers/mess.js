@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -191,6 +191,46 @@ messRouter.post("/suggestion",async (req,res)=>{
                 error:true,
                 message:lang.UNEXPECTED_ERROR,
                 data:{}
+            })
+        }
+    }
+
+})
+messRouter.post("/attend",async (req,res)=>{
+    const user = req.user;
+    const body = req.body;
+    const crr_date = new Date();
+    const crr_time = crr_date.getHours()+(crr_date.getMinutes()/60);
+    let slot = null
+    for (let i of Object.keys(mess_timing)){
+        if (crr_time<mess_timing[i]){
+            slot = parseInt(i)
+        }
+    }
+    if (!slot){
+        slot = 1
+        crr_date.setDate(crr_date.getDate()+1)
+    }
+    const meal_date = getDate(crr_date);
+    const checkAttendanceResponse = await checkAttendance({user_id:user.user_id,meal_slot:slot,meal_date:getDate(crr_date)});
+    if (checkAttendanceResponse.count>0){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.ALREADY_MARKED,
+            data:{}
+        })
+    }else{
+        const markAttendanceResponse = await markAttendance({user_id:user.user_id,meal_slot:slot,meal_date:meal_date,is_attending:body.is_attending});
+        if (markAttendanceResponse){
+            res.send({
+                status:200,
+                error:false,
+                message:body.is_attending==1?"Attendance marked. Enjoy your meal!!":"Attendance marked successfully!!",
+                data:{
+                    meal_date:meal_date,
+                    meal_slot:slot
+                }
             })
         }
     }

@@ -69,6 +69,16 @@ const typeChecker = (req,res,next) =>{
                             data:{}
                         })
                     }
+                }else if (i=="is_attending"){
+                    if (!(body[i]==0 || body[i]==1)){
+                        isError = true
+                        res.status(400).json({
+                            status:400,
+                            error:true,
+                            message:"Type of is_attending must be a 0 or 1",
+                            data:{}
+                        })
+                    }
                 }
             }
         }
