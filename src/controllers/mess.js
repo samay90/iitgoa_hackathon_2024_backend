@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -355,6 +355,24 @@ messRouter.post('/announcement/delete',async (req,res)=>{
                 }
             }
         }
+    }
+})
+messRouter.get("/menu/full",async (req,res)=>{
+    const fullMenuResponse = await fullMenu();
+    if (fullMenuResponse){
+        res.send({
+            status:200,
+            error:false,
+            message:"Menu fetched successfully!!",
+            data:fullMenuResponse
+        })
+    }else{
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.UNEXPECTED_ERROR,
+            data:{}
+        })
     }
 })
 module.exports= messRouter

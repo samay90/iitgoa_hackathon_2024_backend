@@ -80,3 +80,6 @@ All the inputs should satisfy the type and length conditions (by default).
                 - user should be admin or super_admin
                 - announcemnt should belong to the particular user
         Response : Basic
+### i) Get full menu (/menu/full) (GET)
+        Headers : token
+        Response [{meal_day:number[1-7],meal_slot:number[1-4],menu:[{menu_id:number,menu_type:string,menu_type:number[1-9]},...]},...]

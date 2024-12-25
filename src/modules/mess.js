@@ -209,4 +209,22 @@ const deleteAnnouncement = ({announcement_id}) =>{
         })
     })
 }
-module.exports = {checkMenuIds,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const fullMenu = ()=>{
+    return new Promise((resolve,reject)=>{
+        let menu = [];
+        for (let i=1;i<=7;i++){
+            for (let j=1;j<=4;j++){
+                const q = `select menu_id,meal_item,meal_type from menu where is_deleted=0 and meal_slot=? and meal_day=?;`;
+                db.query(q,[j,i],(err,result)=>{
+                    if (err){
+                        reject(err)
+                    }else{
+                        menu.push({meal_day:i,meal_slot:j,menu:result})
+                        if (menu.length==28){resolve(menu)}
+                    }
+                })
+            }
+        }
+    })
+}
+module.exports = {checkMenuIds,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
