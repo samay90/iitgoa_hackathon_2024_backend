@@ -304,7 +304,7 @@ const total_wastages = ({start_date,end_date}) =>{
 }
 const announcements = ({page}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select a.announcement_id,a.announcement_title,a.user_id,a.announcement_message,a.created_at,a.updated_at,u.name from announcements as a LEFT JOIN users as u on a.user_id=u.user_id where is_deleted=0 LIMIT 20 OFFSET ${20*(page-1)};`;
+        const q = `select a.announcement_id,a.announcement_title,a.user_id,a.announcement_message,a.created_at,a.updated_at,u.name from announcements as a LEFT JOIN users as u on a.user_id=u.user_id  where is_deleted=0 ORDER BY a.created_at DESC LIMIT 20 OFFSET ${20*(page-1)};`;
         db.query(q,(err,result)=>{
             if (err){
                 reject(err)
