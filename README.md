@@ -31,6 +31,7 @@ All the inputs should satisfy the type and length conditions (by default).
                 - User should be admin or super_admin.
                 - page should be number
                 - q is the search parameter (if not given than it will give all the users)
+                - q will be search in users name and email.
         Response : total_result,total_in_page,page_no,total_pages,results <- Data of users
 ## 3) Mess (/mess)
 ### a) Edit Mess Menu (/menu/edit) (POST)
