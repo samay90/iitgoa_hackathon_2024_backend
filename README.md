@@ -109,3 +109,8 @@ All the inputs should satisfy the type and length conditions (by default).
                 - user should be admin or super_admin
                 - meal should have been completed
                 - if data of wastage already exist than it will be updated
+### k) Get wastages (/wastages) (POST)
+        Headers : token
+        Body : start_date,end_date
+        Conditions : start_date and end_date should be in valid JS format
+        Response : wastages between start_date and end_date

@@ -48,7 +48,7 @@ const typeChecker = (req,res,next) =>{
                             data:{}
                         })
                     }
-                }else if (i=="meal_date"){
+                }else if (i=="meal_date" || i=="start_date" || i=="end_date"){
                     const temp = new Date(body[i]);
                     if (temp=="Invalid Date"){
                         isError = true

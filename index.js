@@ -15,4 +15,4 @@ app.use(cors({
 }))
 app.use(expressFileUpload())
 app.use("/",typeChecker,lengthChecker, require("./src/routes/routes"))
-app.listen(process.env.PORT, process.env.API_URL)
+app.listen(process.env.PORT)

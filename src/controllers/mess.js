@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -451,5 +451,38 @@ messRouter.post("/wastage/add",async (req,res)=>{
             data:{}
         })
     }
+})
+messRouter.post("/wastages",async (req,res)=>{
+    const body = req.body;
+    const checkerResponse = checker(body,["start_date","end_date"])
+    if (checkerResponse){    
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:checkerResponse,
+            data:{}
+        })
+    }else{
+        const wastagesResponse = await wastages({start_date:getDate(new Date(body.start_date)),end_date:getDate(new Date(body.end_date))});
+        if (wastagesResponse){
+            res.send({
+                status:200,
+                error:false,
+                message:"Wastages fetched successfully!!",
+                data:wastagesResponse
+            })
+        }else{
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.UNEXPECTED_ERROR,
+                data:{}
+            })
+        }
+    }
+})
+messRouter.get("/feedbacks",async (req,res)=>{
+    const body = req.body;
+
 })
 module.exports= messRouter

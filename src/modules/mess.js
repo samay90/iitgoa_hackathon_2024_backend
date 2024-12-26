@@ -278,4 +278,16 @@ const addWastage = ({meal_date,meal_slot,wastage}) =>{
         })
     })
 }
-module.exports = {checkMenuIds,addWastage,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const wastages = ({start_date,end_date}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select meal_date,meal_slot,wastage,created_at,updated_at from wastages where meal_date between ? and ?;`;
+        db.query(q,[start_date,end_date],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
