@@ -338,4 +338,28 @@ const countAttendance = ({meal_date,meal_slot}) =>{
         })
     })
 }
-module.exports = {checkMenuIds,countAttendance,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const feedbacks = ({meal_date,page}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select f.meal_date,f.meal_slot,f.feedback,f.user_id,f.created_at,f.updated_at,u.name from feedbacks as f LEFT JOIN users as u on f.user_id=u.user_id where meal_date=? and is_deleted=0 LIMIT 20 OFFSET ${20*(page-1)};`;
+        db.query(q,[meal_date],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result.map((i)=>({...i,feedback:JSON.parse(i.feedback)})))
+            }
+        })
+    })
+}
+const totalFeedbacks = ({meal_date}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from feedbacks where meal_date=? and is_deleted=0;`;
+        db.query(q,[meal_date],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,feedbacks,totalFeedbacks,countAttendance,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}

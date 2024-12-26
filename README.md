@@ -128,3 +128,10 @@ All the inputs should satisfy the type and length conditions (by default).
         Conditions : 
                 - user should be admin or super_admin
         Response : total_attendance,meal_date,meal_slot
+### n) Get Feedbacks (/feedbacks/:page) (POST)
+        Headers : token
+        Body : meal_date
+        Conditons : 
+                - user should be admin or super_admin
+                - meal_date should be valid JS date
+        Response : total_result,total_in_page,page_no,total_pages,results <- Data of feedbacks

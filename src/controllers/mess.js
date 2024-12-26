@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements, countAttendance } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements, countAttendance, feedbacks, totalFeedbacks } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -579,8 +579,60 @@ messRouter.get("/attendance/next",async (req,res)=>{
         })
     }
 })
-messRouter.get("/feedbacks",async (req,res)=>{
+messRouter.post("/feedbacks/:page",async (req,res)=>{
     const body = req.body;
-
+    const user = req.user;
+    const params = req.params;
+    const page = parseInt(params.page);
+    if (!page){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_PAGE_NUMBER,
+            data:{}
+        })
+    }else{
+        if (user.is_admin==1 || user.is_super_admin==1){
+            if (!body.meal_date){
+                res.send({
+                    status:400,
+                    error:true,
+                    message:lang.MEAL_DATE_REQ,
+                    data:{}
+                })
+            }else{
+                const feedbacksResponse = await feedbacks({meal_date:getDate(new Date(body.meal_date)),page});
+                if (feedbacksResponse){
+                    const totalFeedbacksResponse = await totalFeedbacks({meal_date:getDate(new Date(body.meal_date))});
+                    res.send({
+                        status:200,
+                        error:false,
+                        message:"Feedbacks fetched successfully!!",
+                        data:{
+                            total_results:totalFeedbacksResponse.count,
+                            total_in_page:feedbacksResponse.length,
+                            page_no:page,
+                            total_pages:Math.ceil(totalFeedbacksResponse.count/5),
+                            results:feedbacksResponse
+                        }
+                    })
+                }else{
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.UNEXPECTED_ERROR,
+                        data:{}
+                    })
+                }
+            }
+        }else{
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.NOT_ALLOWED,
+                data:{}
+            })
+        }
+    }
 })
 module.exports= messRouter

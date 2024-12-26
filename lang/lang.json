@@ -13,5 +13,6 @@
     "ALREADY_MARKED":"You have already marked the meal!!",
     "INVALID_ANNOUNCEMENT_ID":"Invalid announcement_id entered. No such announcement exists!!",
     "INVALID_USER_ID":"Invalid user_id. No such user exists!!",
-    "INVALID_PAGE_NUMBER":"Invalid page number!!"
+    "INVALID_PAGE_NUMBER":"Invalid page number!!",
+    "MEAL_DATE_REQ":"meal_date is required!!"
 }
