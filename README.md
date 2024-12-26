@@ -123,3 +123,8 @@ All the inputs should satisfy the type and length conditions (by default).
         Conditions :
                 - page should be number
         Response : total_results,total_in_page,page_no,total_pages,results <- Data of announcemnts
+### m) Get Next Meal Attendance (/attendance/next) (GET)
+        Headers : token
+        Conditions : 
+                - user should be admin or super_admin
+        Response : total_attendance,meal_date,meal_slot

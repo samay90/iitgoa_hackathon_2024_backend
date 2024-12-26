@@ -326,4 +326,16 @@ const totalAnnouncements = () =>{
         })
     })
 }
-module.exports = {checkMenuIds,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const countAttendance = ({meal_date,meal_slot}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from attendance where meal_date=? and meal_slot=? and is_attending=1;`;
+        db.query(q,[meal_date,meal_slot],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,countAttendance,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}

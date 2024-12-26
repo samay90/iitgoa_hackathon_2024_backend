@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements, countAttendance } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -535,7 +535,50 @@ messRouter.get("/announcements/:page",async (req,res)=>{
         }
     }
 })
-
+messRouter.get("/attendance/next",async (req,res)=>{
+    const user = req.user
+    if (user.is_admin==1 || user.is_super_admin==1){
+        const date = new Date();
+        const time = date.getHours()+(date.getMinutes()/60);
+        let slot = null
+        for (let i of Object.keys(mess_timing)){
+            if (time<mess_timing[i]){
+                slot = parseInt(i)
+            }
+        }
+        if (!slot){
+            date.setDate(date.getDate()+1)
+            slot = 1
+        }
+        const countAttendanceResponse = await countAttendance({meal_date:getDate(date),meal_slot:slot});
+        if (countAttendanceResponse){
+            res.send({
+                status:200,
+                error:false,
+                message:"Attendance fetched successfully!!",
+                data:{
+                    total_attendance : countAttendanceResponse.count,
+                    meal_date : getDate(date),	
+                    meal_slot : slot
+                }
+            })
+        }else{
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.UNEXPECTED_ERROR,
+                data:{}
+            })
+        }
+    }else{
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.NOT_ALLOWED,
+            data:{}
+        })
+    }
+})
 messRouter.get("/feedbacks",async (req,res)=>{
     const body = req.body;
 
