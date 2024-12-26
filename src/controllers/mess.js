@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -452,24 +452,78 @@ messRouter.post("/wastage/add",async (req,res)=>{
         })
     }
 })
-messRouter.post("/wastages",async (req,res)=>{
+messRouter.post("/wastages/:page",async (req,res)=>{
     const body = req.body;
+    const params = req.params;
     const checkerResponse = checker(body,["start_date","end_date"])
-    if (checkerResponse){    
+    const page = parseInt(params.page);
+    if (!page){
         res.status(400).send({
             status:400,
             error:true,
-            message:checkerResponse,
+            message:lang.INVALID_PAGE_NUMBER,
             data:{}
         })
     }else{
-        const wastagesResponse = await wastages({start_date:getDate(new Date(body.start_date)),end_date:getDate(new Date(body.end_date))});
-        if (wastagesResponse){
+        if (checkerResponse){    
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:checkerResponse,
+                data:{}
+            })
+        }else{
+            const wastagesResponse = await wastages({start_date:getDate(new Date(body.start_date)),end_date:getDate(new Date(body.end_date)),page});
+            if (wastagesResponse){
+                const total_wastagesResponse = await total_wastages({start_date:getDate(new Date(body.start_date)),end_date:getDate(new Date(body.end_date))});
+                res.send({
+                    status:200,
+                    error:false,
+                    message:"Wastages fetched successfully!!",
+                    data:{
+                        total_results:total_wastagesResponse.count,
+                        total_in_page:wastagesResponse.length,
+                        page_no:page,
+                        total_pages:Math.ceil(total_wastagesResponse.count/5),
+                        results:wastagesResponse
+                    }
+                })
+            }else{
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.UNEXPECTED_ERROR,
+                    data:{}
+                })
+            }
+        }
+    }
+})
+messRouter.get("/announcements/:page",async (req,res)=>{
+    const params = req.params;
+    const page = parseInt(params.page);
+    if (!page){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_PAGE_NUMBER,
+            data:{}
+        })
+    }else{
+        const announcementsResponse = await announcements({page});
+        if (announcementsResponse){
+            const totalAnnouncementsResponse = await totalAnnouncements();
             res.send({
                 status:200,
                 error:false,
-                message:"Wastages fetched successfully!!",
-                data:wastagesResponse
+                message:"Announcements fetched successfully!!",
+                data:{
+                    total_results:totalAnnouncementsResponse.count,
+                    total_in_page:announcementsResponse.length,
+                    page_no:page,
+                    total_pages:Math.ceil(totalAnnouncementsResponse.count/5),
+                    results:announcementsResponse
+                }
             })
         }else{
             res.status(400).send({
@@ -481,6 +535,7 @@ messRouter.post("/wastages",async (req,res)=>{
         }
     }
 })
+
 messRouter.get("/feedbacks",async (req,res)=>{
     const body = req.body;
 

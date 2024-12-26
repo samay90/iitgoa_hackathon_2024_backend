@@ -32,7 +32,7 @@ All the inputs should satisfy the type and length conditions (by default).
                 - page should be number
                 - q is the search parameter (if not given than it will give all the users)
                 - q will be search in users name and email.
-        Response : total_result,total_in_page,page_no,total_pages,results <- Data of users
+        Response : total_results,total_in_page,page_no,total_pages,results <- Data of users
 ## 3) Mess (/mess)
 ### a) Edit Mess Menu (/menu/edit) (POST)
         Headers : token
@@ -109,8 +109,17 @@ All the inputs should satisfy the type and length conditions (by default).
                 - user should be admin or super_admin
                 - meal should have been completed
                 - if data of wastage already exist than it will be updated
-### k) Get wastages (/wastages) (POST)
+### k) Get wastages (/wastages/:page) (POST)
         Headers : token
+        Params : page
         Body : start_date,end_date
-        Conditions : start_date and end_date should be in valid JS format
-        Response : wastages between start_date and end_date
+        Conditions : 
+                - start_date and end_date should be in valid JS format
+                - page should be number
+        Response : total_results,total_in_page,page_no,total_pages,results <- Data of wastages between start_date and end_date
+### l) Get announcements (/announcements/:page) (GET)
+        Headers : token
+        Params : page
+        Conditions :
+                - page should be number
+        Response : total_results,total_in_page,page_no,total_pages,results <- Data of announcemnts

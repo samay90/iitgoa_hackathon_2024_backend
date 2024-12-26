@@ -278,9 +278,9 @@ const addWastage = ({meal_date,meal_slot,wastage}) =>{
         })
     })
 }
-const wastages = ({start_date,end_date}) =>{
+const wastages = ({start_date,end_date,page}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select meal_date,meal_slot,wastage,created_at,updated_at from wastages where meal_date between ? and ?;`;
+        const q = `select meal_date,meal_slot,wastage,created_at,updated_at from wastages where meal_date between ? and ? LIMIT 20 OFFSET ${20*(page-1)};`;
         db.query(q,[start_date,end_date],(err,result)=>{
             if (err){
                 reject(err)
@@ -290,4 +290,40 @@ const wastages = ({start_date,end_date}) =>{
         })
     })
 }
-module.exports = {checkMenuIds,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const total_wastages = ({start_date,end_date}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from wastages where meal_date between ? and ?;`;
+        db.query(q,[start_date,end_date],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const announcements = ({page}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select a.announcement_id,a.announcement_title,a.user_id,a.announcement_message,a.created_at,a.updated_at,u.name from announcements as a LEFT JOIN users as u on a.user_id=u.user_id where is_deleted=0 LIMIT 20 OFFSET ${20*(page-1)};`;
+        db.query(q,(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const totalAnnouncements = () =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from announcements where is_deleted=0;`;
+        db.query(q,(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
