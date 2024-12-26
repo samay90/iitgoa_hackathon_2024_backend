@@ -31,6 +31,13 @@ const tokenVerifier = (req,res,next)=>{
                             message:lang.TOKEN_EXPIRED,
                             data:{}
                         })
+                    }else{
+                        res.status(401).send({
+                            status:401,
+                            error:true,
+                            message:lang.UNAUTHORIZED,
+                            data:{}
+                        })
                     }
                 }else{
                     const getUserDetailsResponse =await getUserDetails({email:decoded.email});

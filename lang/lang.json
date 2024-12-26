@@ -12,5 +12,6 @@
     "ONLY_AFTER_MEAL":"You can only submit after the meal!!",
     "ALREADY_MARKED":"You have already marked the meal!!",
     "INVALID_ANNOUNCEMENT_ID":"Invalid announcement_id entered. No such announcement exists!!",
-    "INVALID_USER_ID":"Invalid user_id. No such user exists!!"
+    "INVALID_USER_ID":"Invalid user_id. No such user exists!!",
+    "INVALID_PAGE_NUMBER":"Invalid page number!!"
 }

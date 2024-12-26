@@ -23,6 +23,15 @@ All the inputs should satisfy the type and length conditions (by default).
                 - User should be super_admin.
                 - User to update should not be super admin.
         Response : Basic
+### c) Get or Find Users (/find/:page?q=search)
+        Headers : token
+        Params : page
+        Query : q
+        Conditions :
+                - User should be admin or super_admin.
+                - page should be number
+                - q is the search parameter (if not given than it will give all the users)
+        Response : total_result,total_in_page,page_no,total_pages,results <- Data of users
 ## 3) Mess (/mess)
 ### a) Edit Mess Menu (/menu/edit) (POST)
         Headers : token

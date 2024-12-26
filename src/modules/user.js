@@ -36,4 +36,28 @@ const changeUserRole = ({user_id,is_admin})=>{
         })
     })
 }
-module.exports = {getUserDetails,changeUserRole,getUserRole}
+const countQuery = ({query})=>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from users where email like "%${query}%" or name like "%${query}%";`
+        db.query(q,(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const findUsers = ({query,page}) =>{
+    return new Promise((resolve,reject)=>{
+        let q = `select user_id,name,email,is_admin,is_super_admin,created_at,updated_at from users where email like "%${query}%" or name like "%${query}%" LIMIT 20 OFFSET ${(page-1)*20};`
+        db.query(q,(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {getUserDetails,countQuery,changeUserRole,getUserRole,findUsers}
