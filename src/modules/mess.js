@@ -364,7 +364,7 @@ const totalFeedbacks = ({meal_date}) =>{
 }
 const suggestions = ({page}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select s.suggestion_id,s.changes_old_item,s.changes_new_item,s.user_id,s.created_at,u.name from suggestions as s LEFT JOIN users as u on s.user_id=u.user_id LIMIT 20 OFFSET ${20*(page-1)};`;
+        const q = `select s.suggestion_id,s.changes_old_item,s.changes_new_item,s.user_id,s.created_at,u.name from suggestions as s LEFT JOIN users as u on s.user_id=u.user_id ORDER BY created_at DESC LIMIT 20 OFFSET ${20*(page-1)} ; `;
         db.query(q,(err,result)=>{
             if (err){
                 reject(err)
