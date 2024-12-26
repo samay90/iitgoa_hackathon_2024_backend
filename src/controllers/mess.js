@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements, countAttendance, feedbacks, totalFeedbacks } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements, countAttendance, feedbacks, totalFeedbacks, suggestions, totalSuggestions } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -630,6 +630,42 @@ messRouter.post("/feedbacks/:page",async (req,res)=>{
                 status:400,
                 error:true,
                 message:lang.NOT_ALLOWED,
+                data:{}
+            })
+        }
+    }
+})
+messRouter.get("/suggestions/:page",async (req,res)=>{
+    const params = req.params;
+    const page = parseInt(params.page);
+    if (!page){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_PAGE_NUMBER,
+            data:{}
+        })
+    }else{
+        const suggestionsResponse = await suggestions({page});
+        if (suggestionsResponse){
+            const totalSuggestionsResponse = await totalSuggestions();
+            res.send({
+                status:200,
+                error:false,
+                message:"Suggestions fetched successfully!!",
+                data:{
+                    total_results:totalSuggestionsResponse.count,
+                    total_in_page:suggestionsResponse.length,
+                    page_no:page,
+                    total_pages:Math.ceil(totalSuggestionsResponse.count/5),
+                    results:suggestionsResponse
+                }
+            })
+        }else{
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.UNEXPECTED_ERROR,
                 data:{}
             })
         }

@@ -362,4 +362,28 @@ const totalFeedbacks = ({meal_date}) =>{
         })
     })
 }
-module.exports = {checkMenuIds,feedbacks,totalFeedbacks,countAttendance,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const suggestions = ({page}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select s.suggestion_id,s.changes_old_item,s.changes_new_item,s.user_id,s.created_at,u.name from suggestions as s LEFT JOIN users as u on s.user_id=u.user_id LIMIT 20 OFFSET ${20*(page-1)};`;
+        db.query(q,(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const totalSuggestions = () =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from suggestions;`;
+        db.query(q,(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,suggestions,totalSuggestions,feedbacks,totalFeedbacks,countAttendance,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}

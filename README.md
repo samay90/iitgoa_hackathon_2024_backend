@@ -135,3 +135,8 @@ All the inputs should satisfy the type and length conditions (by default).
                 - user should be admin or super_admin
                 - meal_date should be valid JS date
         Response : total_result,total_in_page,page_no,total_pages,results <- Data of feedbacks
+### o) Get Suggestions (/suggestions/:page) (GET)
+        Headers : token
+        Conditons : 
+                - user should be admin or super_admin
+        Response : total_result,total_in_page,page_no,total_pages,results <- Data of suggestions
