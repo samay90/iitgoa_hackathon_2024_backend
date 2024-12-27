@@ -161,7 +161,7 @@ All the inputs should satisfy the type and length conditions (by default).
         Headers : token
         Conditions :
                 - user should be admin or super_admin
-                - poll shoudl be closed.
+                - poll should not be closed.
                 - final data of the poll will be taken
                 - after this you can't reopen the poll
         Response : Basic
