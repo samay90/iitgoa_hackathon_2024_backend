@@ -165,3 +165,26 @@ All the inputs should satisfy the type and length conditions (by default).
                 - final data of the poll will be taken
                 - after this you can't reopen the poll
         Response : Basic
+### s) ⭐ Get Polls (/polls/:page) (GET)
+        Headers : token
+        Conditons :
+                - page should be number
+        Response : 
+                - total_results
+                - total_in_page
+                - total_pages
+                - results : [
+                          {
+                             poll_id:number,
+                             poll_title:string,
+                             poll_options:string[],
+                             results:number[],
+                             user_id:number,
+                             name:string,       <- name of the user who has created the poll
+                             created_at:time_string,
+                             is_closed:[0-1],
+                             your_answer:number <- option number that user has selected
+                                                   Imp: if the poll has closed that it will be always null
+                                                        - options should be disabled for frontend ui
+                          }
+                        ,...]

@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements, countAttendance, feedbacks, totalFeedbacks, suggestions, totalSuggestions, createPoll, checkOptionNo, checkPollAnswered, editPollAnswer, addPollAnswer, checkPollId, getPollResults, deletePoll, deletePollAnswers } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements, countAttendance, feedbacks, totalFeedbacks, suggestions, totalSuggestions, createPoll, checkOptionNo, checkPollAnswered, editPollAnswer, addPollAnswer, checkPollId, getPollResults, deletePoll, deletePollAnswers, getPolls, getTotalPolls } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -484,7 +484,7 @@ messRouter.post("/wastages/:page",async (req,res)=>{
                         total_results:total_wastagesResponse.count,
                         total_in_page:wastagesResponse.length,
                         page_no:page,
-                        total_pages:Math.ceil(total_wastagesResponse.count/5),
+                        total_pages:Math.ceil(total_wastagesResponse.count/28),
                         results:wastagesResponse
                     }
                 })
@@ -521,7 +521,7 @@ messRouter.get("/announcements/:page",async (req,res)=>{
                     total_results:totalAnnouncementsResponse.count,
                     total_in_page:announcementsResponse.length,
                     page_no:page,
-                    total_pages:Math.ceil(totalAnnouncementsResponse.count/5),
+                    total_pages:Math.ceil(totalAnnouncementsResponse.count/20),
                     results:announcementsResponse
                 }
             })
@@ -612,7 +612,7 @@ messRouter.post("/feedbacks/:page",async (req,res)=>{
                             total_results:totalFeedbacksResponse.count,
                             total_in_page:feedbacksResponse.length,
                             page_no:page,
-                            total_pages:Math.ceil(totalFeedbacksResponse.count/5),
+                            total_pages:Math.ceil(totalFeedbacksResponse.count/20),
                             results:feedbacksResponse
                         }
                     })
@@ -657,7 +657,7 @@ messRouter.get("/suggestions/:page",async (req,res)=>{
                     total_results:totalSuggestionsResponse.count,
                     total_in_page:suggestionsResponse.length,
                     page_no:page,
-                    total_pages:Math.ceil(totalSuggestionsResponse.count/5),
+                    total_pages:Math.ceil(totalSuggestionsResponse.count/20),
                     results:suggestionsResponse
                 }
             })
@@ -853,6 +853,43 @@ messRouter.delete("/poll/:poll_id/close",async (req,res)=>{
                 status:400,
                 error:true,
                 message:lang.NOT_ALLOWED,
+                data:{}
+            })
+        }
+    }
+})
+messRouter.get("/polls/:page",async(req,res)=>{
+    const params = req.params;
+    const user = req.user;
+    const page = parseInt(params.page);
+    if (!page){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_PAGE,
+            data:{}
+        })
+    }else{
+        const getPollsResponse = await getPolls({page,user_id:user.user_id});
+        if (getPollsResponse){
+            const getTotalPollsResponse = await getTotalPolls();
+            res.send({
+                status:200,
+                error:false,
+                message:"Polls fetched successfully!!",
+                data:{
+                    total_results:getTotalPollsResponse.count,
+                    total_in_page:getPollsResponse.length,
+                    page_no:page,
+                    total_pages:Math.ceil(getTotalPollsResponse.count/20),
+                    results:getPollsResponse
+                }
+            })
+        }else{
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.UNEXPECTED_ERROR,
                 data:{}
             })
         }

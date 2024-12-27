@@ -497,4 +497,44 @@ const deletePollAnswers = ({poll_id}) =>{
         })
     })
 }
-module.exports = {checkMenuIds,deletePollAnswers,checkPollId,deletePoll,editPollAnswer,getPollResults,addPollAnswer,createPoll,checkPollAnswered,checkOptionNo,suggestions,totalSuggestions,feedbacks,totalFeedbacks,countAttendance,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const getTotalPolls = () =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from polls;`;
+        db.query(q,(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const getPolls = ({page,user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select p.poll_id,p.poll_title,p.poll_options,p.results ,p.user_id,u.name,p.created_at,p.is_deleted as is_closed,r.option_no as your_answer from polls as p left join users as u on p.user_id=u.user_id left join poll_responses as r on p.poll_id=r.poll_id and r.user_id=${user_id} order by created_at desc limit ? offset ?;`;
+        db.query(q,[20,(page-1)*20],async (err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                for (let i=0;i<result.length;i++){
+                    result[i].poll_options = JSON.parse(result[i].poll_options)
+                    result[i].results = JSON.parse(result[i].results)
+                    if (result[i].is_closed==0){
+                        const getPollResultsResponse =await getPollResults({poll_id:result[i].poll_id})
+                        let results = []
+                        for (let j=1;j<=result[i].poll_options.length;j++){
+                            if (getPollResultsResponse.find(k=>k.option_no==j)){
+                                results.push(getPollResultsResponse.find(k=>k.option_no==j).count)
+                            }else{
+                                results.push(0)
+                            }
+                        }
+                        result[i].results = results
+                    }
+                }
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,getTotalPolls,getPolls,deletePollAnswers,checkPollId,deletePoll,editPollAnswer,getPollResults,addPollAnswer,createPoll,checkPollAnswered,checkOptionNo,suggestions,totalSuggestions,feedbacks,totalFeedbacks,countAttendance,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
