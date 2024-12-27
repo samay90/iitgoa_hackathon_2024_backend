@@ -8,6 +8,8 @@ All the inputs should satisfy the type and length conditions (by default).
         Response : token
 ### b) SignUp (/signup) (POST)
         Body : email,password,name
+        Conditions : 
+                - Only IIT Goa email id's allowed
         Response : token
 ## 2) User (/user)
 ### a) Get User Data (/) (GET)
