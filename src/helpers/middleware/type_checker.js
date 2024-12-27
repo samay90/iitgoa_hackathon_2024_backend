@@ -89,6 +89,16 @@ const typeChecker = (req,res,next) =>{
                             data:{}
                         })
                     }
+                }else if(i=="poll_options"){
+                    if (!Array.isArray(body[i])){
+                        isError = true
+                        res.status(400).json({
+                            status:400,
+                            error:true,
+                            message:"Type of poll_options must be an array of strings",
+                            data:{}
+                        })
+                    }
                 }
             }
         }

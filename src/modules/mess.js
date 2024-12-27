@@ -386,4 +386,115 @@ const totalSuggestions = () =>{
         })
     })
 }
-module.exports = {checkMenuIds,suggestions,totalSuggestions,feedbacks,totalFeedbacks,countAttendance,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}
+const createPoll = ({poll_title,poll_options,user_id}) =>{
+    const currentTime = getTime();
+    return new Promise((resolve,reject)=>{
+        const q = `insert into polls(poll_title,poll_options,user_id,created_at,is_deleted) values(?,JSON_Array(?),?,?,?);`;
+        db.query(q,[poll_title,poll_options,user_id,currentTime,0],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const checkOptionNo = ({poll_id,option_no}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select JSON_LENGTH(poll_options) as count from polls where poll_id=? and is_deleted=0;`;
+        db.query(q,[poll_id,option_no],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0]??{error:true})
+            }
+        })
+    })
+}
+const checkPollAnswered = ({user_id,poll_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from poll_responses where user_id=? and poll_id=?;`;
+        db.query(q,[user_id,poll_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const addPollAnswer = ({poll_id,user_id,option_no}) =>{
+    const currentTime = getTime();
+    return new Promise((resolve,reject)=>{
+        const q = `insert into poll_responses(poll_id,user_id,option_no,created_at,updated_at) values(?,?,?,?,?);`;
+        db.query(q,[poll_id,user_id,option_no,currentTime,currentTime],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const editPollAnswer = ({poll_id,user_id,option_no}) =>{
+    const currentTime = getTime();
+    return new Promise((resolve,reject)=>{
+        const q = `update poll_responses set option_no=?,updated_at=? where poll_id=? and user_id=?;`;
+        db.query(q,[option_no,currentTime,poll_id,user_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const checkPollId = ({poll_id,user_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select count(*) as count from polls where poll_id=? and user_id=? and is_deleted=0;`;
+        db.query(q,[poll_id,user_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result[0])
+            }
+        })
+    })
+}
+const getPollResults = ({poll_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `select option_no,count(*) as count from poll_responses where poll_id=?  group by option_no ORDER BY option_no;`;
+        db.query(q,[poll_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const deletePoll = ({poll_id,results}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `update polls set is_deleted=1,results=JSON_Array(?) where poll_id=?;`;
+        db.query(q,[results,poll_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+const deletePollAnswers = ({poll_id}) =>{
+    return new Promise((resolve,reject)=>{
+        const q = `delete from poll_responses where poll_id=?;`;
+        db.query(q,[poll_id],(err,result)=>{
+            if (err){
+                reject(err)
+            }else{
+                resolve(result)
+            }
+        })
+    })
+}
+module.exports = {checkMenuIds,deletePollAnswers,checkPollId,deletePoll,editPollAnswer,getPollResults,addPollAnswer,createPoll,checkPollAnswered,checkOptionNo,suggestions,totalSuggestions,feedbacks,totalFeedbacks,countAttendance,totalAnnouncements,announcements,total_wastages,addWastage,wastages,updateWastage,isWastageExist,editAttendance,fullMenu,deleteAnnouncement,addAnnouncement,editAnnouncement,checkAnnouncmentId,checkAttendance,addSuggestion,markAttendance,countSuggestions,checkItemId,countFeedbacks,deletePreviousFeedback,addFeedback,checkMealIds,addMeals,removeMeals,currentMenu}

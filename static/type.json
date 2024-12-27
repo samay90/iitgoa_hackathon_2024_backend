@@ -19,5 +19,8 @@
     "announcement_id":"number",
     "user_role":"custom",
     "wastage":"number",
+    "poll_title":"string",
+    "poll_options":"custom",
+    "option_no":"number",
     "✅ just a comment":"If you change the data type of custom fields, please change it in type_checker also!!"
 }

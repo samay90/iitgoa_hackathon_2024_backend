@@ -142,3 +142,26 @@ All the inputs should satisfy the type and length conditions (by default).
         Conditons : 
                 - user should be admin or super_admin
         Response : total_result,total_in_page,page_no,total_pages,results <- Data of suggestions
+### p) Add Poll (/poll/new) (POST)
+        Headers : token
+        Body : poll_title,poll_options
+        Conditions :
+                - user should be admin or super_admin
+                - poll_options should be array of strings
+        Response : Basic
+### q) Answer Poll (/poll/:poll_id) (POST)
+        Headers : token
+        Body : option_no
+        Conditions : 
+                - 1<=option_no<=total_options
+                - poll should be closed.
+                - if the poll is already answered by user than answer will be updated else new anwer will be added.
+        Response : Basic
+### r) Close Poll (/poll/:poll_id/close) (DELETE)
+        Headers : token
+        Conditions :
+                - user should be admin or super_admin
+                - poll shoudl be closed.
+                - final data of the poll will be taken
+                - after this you can't reopen the poll
+        Response : Basic

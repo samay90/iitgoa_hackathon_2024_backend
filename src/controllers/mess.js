@@ -2,7 +2,7 @@ const express = require("express");
 const messRouter = express.Router();
 const checker = require("../helpers/functions/checker");
 const lang = require("../../lang/lang.json");
-const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements, countAttendance, feedbacks, totalFeedbacks, suggestions, totalSuggestions } = require("../modules/mess");
+const { checkMenuIds, addMeals, removeMeals, currentMenu, checkMealIds, addFeedback, deletePreviousFeedback, countFeedbacks, checkItemId, addSuggestion, countSuggestions, markAttendance, checkAttendance, addAnnouncement, checkAnnouncmentId, editAnnouncement, deleteAnnouncement, fullMenu, editAttendance, isWastageExist, updateWastage, addWastage, wastages, total_wastages, announcements, totalAnnouncements, countAttendance, feedbacks, totalFeedbacks, suggestions, totalSuggestions, createPoll, checkOptionNo, checkPollAnswered, editPollAnswer, addPollAnswer, checkPollId, getPollResults, deletePoll, deletePollAnswers } = require("../modules/mess");
 const getDate = require("../helpers/functions/getDate")
 const mess_timing = require("../../static/mess_timing.json")
 messRouter.post("/menu/edit",async (req,res)=>{
@@ -666,6 +666,193 @@ messRouter.get("/suggestions/:page",async (req,res)=>{
                 status:400,
                 error:true,
                 message:lang.UNEXPECTED_ERROR,
+                data:{}
+            })
+        }
+    }
+})
+messRouter.post("/poll/new",async (req,res)=>{
+    const body = req.body;
+    const user = req.user;
+    if (user.is_admin==1 || user.is_super_admin==1){
+        const checkerResponse = checker(body,["poll_title","poll_options"]);
+        if (checkerResponse){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:checkerResponse,
+                data:{}
+            })
+        }else{
+            const createPollResponse = await createPoll({poll_title:body.poll_title,poll_options:body.poll_options,user_id:user.user_id});   
+            if (createPollResponse){
+                res.send({
+                    status:200,
+                    error:false,
+                    message:"Poll added successfully!!",
+                    data:{}
+                })
+            }else{
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.UNEXPECTED_ERROR,
+                    data:{}
+                })
+            }
+        }
+    }else{
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.NOT_ALLOWED,
+            data:{}
+        })
+    }
+})
+messRouter.post("/poll/:poll_id",async (req,res)=>{
+    const user = req.user;
+    const params = req.params;
+    const poll_id = parseInt(params.poll_id);
+    const body = req.body;
+    if (!poll_id){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_POLL_ID,
+            data:{}
+        })
+    }else{
+        if (body.option_no==undefined){
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.NO_INPUTS,
+                data:{}
+            })
+        }else{
+            const checkOptionNoResponse = await checkOptionNo({poll_id});
+            if (checkOptionNoResponse.error){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_POLL_ID,
+                    data:{}
+                })
+            }else{
+                if (body.option_no>checkOptionNoResponse.count || body.option_no<1){
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.INVALID_OPTION_NO,
+                        data:{}
+                    })
+                }else{
+                    const checkPollAnsweredResponse = await checkPollAnswered({user_id:user.user_id,poll_id});
+                    if (checkPollAnsweredResponse.count>0){
+                        const editPollResponse = await editPollAnswer({poll_id,user_id:user.user_id,option_no:body.option_no});
+                        if (editPollResponse){
+                            res.send({
+                                status:200,
+                                error:false,
+                                message:"Poll answered successfully!!",
+                                data:{}
+                            })
+                        }else{
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.UNEXPECTED_ERROR,
+                                data:{}
+                            })
+                        }
+                    }else{
+                        const addPollResponse = await addPollAnswer({poll_id,user_id:user.user_id,option_no:body.option_no});
+                        if (addPollResponse){
+                            res.send({
+                                status:200,
+                                error:false,
+                                message:"Poll answered successfully!!",
+                                data:{}
+                            })
+                        }else{
+                            res.status(400).send({
+                                status:400,
+                                error:true,
+                                message:lang.UNEXPECTED_ERROR,
+                                data:{}
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+messRouter.delete("/poll/:poll_id/close",async (req,res)=>{
+    const user = req.user;
+    const params = req.params;
+    const poll_id = parseInt(params.poll_id);
+    if (!poll_id){
+        res.status(400).send({
+            status:400,
+            error:true,
+            message:lang.INVALID_POLL_ID,
+            data:{}
+        })
+    }else{
+        if (user.is_admin==1 || user.is_super_admin==1){
+            const checkPollIdResponse = await checkPollId({poll_id,user_id:user.user_id});   
+            if (checkPollIdResponse.count>0){
+                const getPollResultsResponse = await getPollResults({poll_id});
+                if (getPollResultsResponse){
+                    const checkOptionNoResponse = await checkOptionNo({poll_id});
+                    let results = []
+                    for (let i=1;i<=checkOptionNoResponse.count;i++){
+                        if (getPollResultsResponse.find(j=>j.option_no==i)){
+                            results.push(getPollResultsResponse.find(j=>j.option_no==i).count)
+                        }else{
+                            results.push(0)
+                        }
+                    }
+                    const deletePollResponse = await deletePoll({poll_id,results:results});
+                    if (deletePollResponse){
+                        const deletePollAnswersResponse = await deletePollAnswers({poll_id});
+                        res.send({
+                            status:200,
+                            error:false,
+                            message:"Poll ended successfully!!",
+                            data:{}
+                        })
+                    }else{
+                        res.status(400).send({
+                            status:400,
+                            error:true,
+                            message:lang.UNEXPECTED_ERROR,
+                            data:{}
+                        })
+                    }
+                }else{
+                    res.status(400).send({
+                        status:400,
+                        error:true,
+                        message:lang.UNEXPECTED_ERROR,
+                        data:{}
+                    })
+                }
+            }else{
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_POLL_ID,
+                    data:{}
+                })
+            }
+        }else{
+            res.status(400).send({
+                status:400,
+                error:true,
+                message:lang.NOT_ALLOWED,
                 data:{}
             })
         }
