@@ -280,7 +280,7 @@ const addWastage = ({meal_date,meal_slot,wastage}) =>{
 }
 const wastages = ({start_date,end_date,page}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select meal_date,meal_slot,wastage,created_at,updated_at from wastages where meal_date between ? and ? LIMIT 20 OFFSET ${20*(page-1)};`;
+        const q = `select meal_date,meal_slot,wastage,created_at,updated_at from wastages where meal_date between ? and ? LIMIT 28 OFFSET ${28*(page-1)};`;
         db.query(q,[start_date,end_date],(err,result)=>{
             if (err){
                 reject(err)

@@ -1,5 +1,5 @@
 const isEmail = ({email}) =>{
-    var re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    var re = /^[a-zA-Z0-9._%+-]+@iitgoa.ac.in$/;
     return re.test(email);
 }
 module.exports = isEmail
