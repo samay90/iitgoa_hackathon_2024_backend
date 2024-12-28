@@ -1,7 +1,6 @@
 const type = require("../../../static/type.json")
 const additons = require("../functions/types/additions")
 const removes = require("../functions/types/removes")
-const feedback = require("../functions/types/feedback")
 const typeChecker = (req,res,next) =>{
     const body = req.body;
     var isError = false
@@ -38,13 +37,13 @@ const typeChecker = (req,res,next) =>{
                             data:{}
                         })
                     }
-                }else if (i=="feedback"){
-                    if (!feedback({data:body[i]})){
+                }else if (i=="questions" || i=="answers" ){
+                    if (!Array.isArray(body[i])){
                         isError = true
                         res.status(400).json({
                             status:400,
                             error:true,
-                            message:"Type of feedback must be an array of objects with the following structure : {menu_id:number,rating:number[1-5],qna:[{question:string,answer:string}]}",
+                            message:"questions and answers must be an array of strings",
                             data:{}
                         })
                     }

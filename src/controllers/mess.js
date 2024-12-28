@@ -92,7 +92,7 @@ messRouter.get("/menu/current",async (req,res)=>{
 messRouter.post("/feedback",async (req,res)=>{
     const body = req.body;
     const user = req.user;
-    const checkerResponse = checker(body,["feedback","meal_slot"]);
+    const checkerResponse = checker(body,["questions","answers","rating","meal_slot"]);
     if (checkerResponse){
         res.status(400).send({
             status:400,
@@ -112,44 +112,35 @@ messRouter.post("/feedback",async (req,res)=>{
                 data:{}
             })
         }else{
-            const conv = {0:7,1:1,2:2,3:3,4:4,5:5,6:6};
-            let day = conv[crr_date.getDay()];
-            let meal_ids = [];
-            body.feedback.forEach(element => {
-                meal_ids.push(element.menu_id)
-            });
-            if (meal_ids.length>0){
-                const checkMealIdsResponse = await checkMealIds({ids:meal_ids,meal_slot:body.meal_slot,meal_day:day});
-                if (checkMealIdsResponse.items!=meal_ids.length){
+            if (!(body.rating>=1 && body.rating<=5)){
+                res.status(400).send({
+                    status:400,
+                    error:true,
+                    message:lang.INVALID_RATING,
+                    data:{}
+                })
+            }else{
+                let isError = false
+                const deletePreviousFeedbackResponse = await deletePreviousFeedback({user_id:user.user_id,meal_slot:body.meal_slot,meal_date:meal_date});
+                if (deletePreviousFeedbackResponse){
+                    const addFeedbackResponse = await addFeedback({meal_slot:body.meal_slot,meal_date:meal_date,rating:body.rating,questions:body.questions,answers:body.answers,user_id:user.user_id});
+                    if (!addFeedbackResponse){isError = true}
+                }else{isError = true}
+                if (isError){
                     res.status(400).send({
                         status:400,
                         error:true,
-                        message:lang.INVALID_MENU_ID,
+                        message:lang.UNEXPECTED_ERROR,
                         data:{}
                     })
                 }else{
-                    let isError = false
-                    const deletePreviousFeedbackResponse = await deletePreviousFeedback({user_id:user.user_id,meal_slot:body.meal_slot,meal_date:meal_date});
-                    if (deletePreviousFeedbackResponse){
-                        const addFeedbackResponse = await addFeedback({meal_slot:body.meal_slot,meal_date:meal_date,feedback:body.feedback,user_id:user.user_id});
-                        if (!addFeedbackResponse){isError = true}
-                    }else{isError = true}
-                    if (isError){
-                        res.status(400).send({
-                            status:400,
-                            error:true,
-                            message:lang.UNEXPECTED_ERROR,
-                            data:{}
-                        })
-                    }else{
-                        const countFeedbacksResponse = await countFeedbacks({user_id:user.user_id});
-                        res.send({
-                            status:200,
-                            error:false,
-                            message:"You contributed "+countFeedbacksResponse.count+" times in feedback's. Thanks for the feedback!!",
-                            data:{}
-                        })
-                    }
+                    const countFeedbacksResponse = await countFeedbacks({user_id:user.user_id});
+                    res.send({
+                        status:200,
+                        error:false,
+                        message:"You contributed "+countFeedbacksResponse.count+" times in feedback's. Thanks for the feedback!!",
+                        data:{}
+                    })
                 }
             }
         }
@@ -344,7 +335,7 @@ messRouter.post('/announcement/delete',async (req,res)=>{
                     data:{}
                 })
             }else{
-                const deleteAnnouncementResponse = await deleteAnnouncement({id:body.announcement_id});
+                const deleteAnnouncementResponse = await deleteAnnouncement({announcement_id:body.announcement_id});
                 if (deleteAnnouncementResponse){
                     res.send({
                         status:200,

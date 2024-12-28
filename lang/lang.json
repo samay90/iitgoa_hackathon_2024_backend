@@ -16,5 +16,6 @@
     "INVALID_PAGE_NUMBER":"Invalid page number!!",
     "MEAL_DATE_REQ":"meal_date is required!!",
     "INVALID_POLL_ID":"Invalid poll_id entered. No such poll exists!!",
-    "INVALID_OPTION_NO":"Invalid option_no entered. No such option exists!!"
+    "INVALID_OPTION_NO":"Invalid option_no entered. No such option exists!!",
+    "INVALID_RATING":"Invalid rating entered. Rating should be between 1-5!!"
 }

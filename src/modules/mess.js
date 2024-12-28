@@ -86,11 +86,11 @@ const countFeedbacks = ({user_id}) =>{
         })
     })
 }
-const addFeedback = ({meal_slot,meal_date,feedback,user_id}) =>{
+const addFeedback = ({meal_slot,meal_date,rating,questions,answers,user_id}) =>{
     const currentTime = getTime();
     return new Promise((resolve,reject)=>{
-        const q = `insert into feedbacks (user_id,meal_slot,meal_date,feedback,created_at,updated_at,is_deleted) values (?,?,?,?,?,?,?);`;
-        db.query(q,[user_id,meal_slot,meal_date,JSON.stringify(feedback),currentTime,currentTime,0],(err,result)=>{
+        const q = `insert into feedbacks (user_id,meal_slot,meal_date,rating,questions,answers,created_at,updated_at,is_deleted) values (?,?,?,?,?,?,?,?,?);`;
+        db.query(q,[user_id,meal_slot,meal_date,rating,JSON.stringify(questions),JSON.stringify(answers),currentTime,currentTime,0],(err,result)=>{
             if (err){
                 reject(err)
             }else{
@@ -213,7 +213,7 @@ const editAnnouncement = ({announcement_title,announcement_message,announcement_
 const deleteAnnouncement = ({announcement_id}) =>{
     return new Promise((resolve,reject)=>{
         const q = `update announcements set is_deleted=1,updated_at=? where announcement_id=?;`;
-        db.query(q,[announcement_id,getTime()],(err,result)=>{
+        db.query(q,[getTime(),announcement_id],(err,result)=>{
             if (err){
                 reject(err)
             }else{
@@ -304,7 +304,7 @@ const total_wastages = ({start_date,end_date}) =>{
 }
 const announcements = ({page}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select a.announcement_id,a.announcement_title,a.user_id,a.announcement_message,a.created_at,a.updated_at,u.name from announcements as a LEFT JOIN users as u on a.user_id=u.user_id  where is_deleted=0 ORDER BY a.created_at DESC LIMIT 20 OFFSET ${20*(page-1)};`;
+        const q = `select a.announcement_id,a.announcement_title,a.user_id,a.announcement_message,a.created_at,a.updated_at,u.name from announcements as a LEFT JOIN users as u on a.user_id=u.user_id  where a.is_deleted=0 ORDER BY a.created_at DESC LIMIT 20 OFFSET ${20*(page-1)};`;
         db.query(q,(err,result)=>{
             if (err){
                 reject(err)
@@ -340,12 +340,12 @@ const countAttendance = ({meal_date,meal_slot}) =>{
 }
 const feedbacks = ({meal_date,page}) =>{
     return new Promise((resolve,reject)=>{
-        const q = `select f.meal_date,f.meal_slot,f.feedback,f.user_id,f.created_at,f.updated_at,u.name from feedbacks as f LEFT JOIN users as u on f.user_id=u.user_id where meal_date=? and is_deleted=0 LIMIT 20 OFFSET ${20*(page-1)};`;
+        const q = `select f.meal_date,f.meal_slot,f.questions,f.rating,f.answers,f.user_id,f.created_at,f.updated_at,u.name from feedbacks as f LEFT JOIN users as u on f.user_id=u.user_id where meal_date=? and is_deleted=0 LIMIT 20 OFFSET ${20*(page-1)};`;
         db.query(q,[meal_date],(err,result)=>{
             if (err){
                 reject(err)
             }else{
-                resolve(result.map((i)=>({...i,feedback:JSON.parse(i.feedback)})))
+                resolve(result.map((i)=>({...i,questions:JSON.parse(i.questions),answers:JSON.parse(i.answers)})))
             }
         })
     })
