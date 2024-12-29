@@ -197,6 +197,7 @@ messRouter.post("/attend",async (req,res)=>{
     for (let i of Object.keys(mess_timing)){
         if (crr_time<mess_timing[i]){
             slot = parseInt(i)
+            break
         }
     }
     if (!slot){
@@ -536,6 +537,7 @@ messRouter.get("/attendance/next",async (req,res)=>{
         for (let i of Object.keys(mess_timing)){
             if (time<mess_timing[i]){
                 slot = parseInt(i)
+                break
             }
         }
         if (!slot){
